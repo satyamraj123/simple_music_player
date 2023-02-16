@@ -7,7 +7,8 @@ abstract class PlayerBlocEvent {
 
 class ChangeSongEvent extends PlayerBlocEvent {
   final Song song;
-  const ChangeSongEvent(this.song);
+  final Duration playFromDuration;
+  const ChangeSongEvent(this.song,this.playFromDuration);
   @override
   String toString() => 'ChangeSongEvent';
 }

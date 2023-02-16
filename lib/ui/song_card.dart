@@ -20,31 +20,47 @@ class SongCard extends StatefulWidget {
 class _SongCardState extends State<SongCard> {
   late PlayerBloc playerBloc = BlocProvider.of<PlayerBloc>(context);
   bool currentSong = false;
-  Duration currentPosition=Duration(seconds: 0);
+  bool currentSongPaused = false;
+  Duration currentPosition = Duration(seconds: 0);
   @override
   Widget build(BuildContext context) {
     return BlocListener<PlayerBloc, PlayerBlocState>(
       listener: ((context, state) {
         if (state is PlayingState) {
-          if (state.currentSong == widget.song) {
+          if (state.currentSong.path == widget.song.path) {
             setState(() {
               currentSong = true;
-              currentPosition=state.currentPosition;
+              currentPosition = state.currentPosition;
             });
-            print(currentPosition.inSeconds.toString());
           } else {
-            setState(() {
-              currentSong = false;
-            });
+              setState(() {
+                currentSong = false;
+                currentPosition = Duration(seconds: 0);
+              });
+            
           }
+        } else if (state is PausedState) {
+          setState(() {
+            currentSongPaused = true;
+          });
         }
       }),
       child: GestureDetector(
         onTap: () async {
           if (currentSong) {
-            playerBloc.add(PauseSongEvent(widget.song));
+            if (currentSongPaused) {
+              playerBloc.add(ChangeSongEvent(widget.song, currentPosition));
+              setState(() {
+                currentSongPaused = false;
+              });
+            } else {
+              playerBloc.add(PauseSongEvent(widget.song));
+            }
           } else {
-            playerBloc.add(ChangeSongEvent(widget.song));
+            playerBloc.add(ChangeSongEvent(widget.song, Duration(seconds: 0)));
+            setState(() {
+              currentSongPaused = false;
+            });
           }
         },
         child: Container(
@@ -93,6 +109,7 @@ class _SongCardState extends State<SongCard> {
                   ),
                 ),
               ),
+              Text(currentPosition.toString()),
             ],
           ),
         ),
