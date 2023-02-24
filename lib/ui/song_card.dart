@@ -5,20 +5,21 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:simple_music_player/bloc/song_bloc/song_bloc_bloc.dart';
 import 'package:simple_music_player/models/song_model.dart';
 
 import '../bloc/player_bloc/player_bloc_bloc.dart';
 
 class SongCard extends StatefulWidget {
   final Song song;
-  const SongCard({super.key, required this.song});
+  final PlayerBloc playerBloc;
+  const SongCard({super.key, required this.song, required this.playerBloc});
 
   @override
   State<SongCard> createState() => _SongCardState();
 }
 
 class _SongCardState extends State<SongCard> {
-  late PlayerBloc playerBloc = BlocProvider.of<PlayerBloc>(context);
   bool currentSong = false;
   bool currentSongPaused = false;
   Duration currentPosition = Duration(seconds: 0);
@@ -27,37 +28,44 @@ class _SongCardState extends State<SongCard> {
     return BlocListener<PlayerBloc, PlayerBlocState>(
       listener: ((context, state) {
         if (state is PlayingState) {
-          if (state.currentSong.path == widget.song.path) {
+          if (state.currentSong.path.compareTo(widget.song.path) == 0) {
             setState(() {
-              currentSong = true;
               currentPosition = state.currentPosition;
             });
-          } else {
-              setState(() {
-                currentSong = false;
-                currentPosition = Duration(seconds: 0);
-              });
-            
           }
         } else if (state is PausedState) {
           setState(() {
             currentSongPaused = true;
           });
+        } else if (state is ChangedSongState) {
+          if (state.currentSong.path.compareTo(widget.song.path) == 0) {
+            setState(() {
+              currentSong = true;
+              currentPosition = Duration(seconds: 0);
+            });
+          } else {
+            setState(() {
+              currentSong = false;
+              currentPosition = Duration(seconds: 0);
+            });
+          }
         }
       }),
       child: GestureDetector(
         onTap: () async {
           if (currentSong) {
             if (currentSongPaused) {
-              playerBloc.add(ChangeSongEvent(widget.song, currentPosition));
+              widget.playerBloc
+                  .add(ChangeSongEvent(widget.song, currentPosition));
               setState(() {
                 currentSongPaused = false;
               });
             } else {
-              playerBloc.add(PauseSongEvent(widget.song));
+              widget.playerBloc.add(PauseSongEvent(widget.song));
             }
           } else {
-            playerBloc.add(ChangeSongEvent(widget.song, Duration(seconds: 0)));
+            widget.playerBloc
+                .add(ChangeSongEvent(widget.song, Duration(seconds: 0)));
             setState(() {
               currentSongPaused = false;
             });

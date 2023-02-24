@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:meta/meta.dart';
 import 'package:simple_music_player/models/song_model.dart';
@@ -8,10 +9,9 @@ part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
 final AudioPlayer audioPlayer = AudioPlayer();
-
 class PlayerBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   PlayerBloc() : super(PlayerBlocInitial()) {
-    on<ChangeSongEvent>(mapChangeSongEventToState);
+    on<ChangeSongEvent>(mapChangeSongEventToState, transformer: restartable());
     on<PauseSongEvent>(mapPauseSongEventToState);
   }
   final songRepository = SongRepository();
@@ -19,11 +19,14 @@ class PlayerBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   void mapChangeSongEventToState(
       ChangeSongEvent event, Emitter<PlayerBlocState> emit) async {
     await audioPlayer.stop();
+
     await audioPlayer.setUrl(event.song.path);
     audioPlayer.play();
-    emit(PlayingState(event.song, const Duration(seconds: 0)));
-    await emit.forEach(audioPlayer.positionStream, onData: ((data) {
-      return PlayingState(event.song, data);
+    Duration? totalDuration = audioPlayer.duration;
+    emit(ChangedSongState(event.song, totalDuration!));
+
+    await emit.forEach(audioPlayer.createPositionStream(), onData: ((data) {
+      return PlayingState(event.song, data, totalDuration);
     }));
     // audioPlayer.positionStream.forEach(((element) => emit(PlayingState(event.song,element))));
   }

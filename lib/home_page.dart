@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:simple_music_player/bloc/player_bloc/player_bloc_bloc.dart';
 import 'package:simple_music_player/bloc/song_bloc/song_bloc_bloc.dart';
+import 'package:simple_music_player/ui/player_card.dart';
 import 'package:simple_music_player/ui/song_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,6 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final player = AudioPlayer();
   late SongBloc songBloc;
+  late PlayerBloc playerBloc;
   Future<List<String>> getSongsFromDownloads() async {
     var status = await Permission.storage.status;
     var status1 = await Permission.manageExternalStorage.status;
@@ -48,14 +51,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     songBloc = BlocProvider.of<SongBloc>(context);
+    playerBloc = BlocProvider.of<PlayerBloc>(context);
     songBloc.add(FetchSongEvent());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    
-    AudioPlayer player=AudioPlayer();
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -84,6 +86,7 @@ class _HomePageState extends State<HomePage> {
                     width: MediaQuery.of(context).size.width,
                     child: Center(child: Text('Simple Music Player')),
                   )),
+                  PlayerCard(playerBloc),
                   Container(
                     height: 20,
                     padding: EdgeInsets.only(left: 10),
@@ -94,8 +97,11 @@ class _HomePageState extends State<HomePage> {
                     child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: state.songs.length,
-                        itemBuilder: (ctx, i) =>
-                            Container(child: SongCard(song: state.songs[i]))),
+                        itemBuilder: (ctx, i) => Container(
+                                child: SongCard(
+                              song: state.songs[i],
+                              playerBloc: playerBloc,
+                            ))),
                   ),
                 ],
               ),
