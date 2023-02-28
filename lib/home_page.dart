@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:simple_music_player/adjustable_controller.dart';
 import 'package:simple_music_player/bloc/player_bloc/player_bloc_bloc.dart';
 import 'package:simple_music_player/bloc/song_bloc/song_bloc_bloc.dart';
 import 'package:simple_music_player/ui/player_card.dart';
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   final player = AudioPlayer();
   late SongBloc songBloc;
   late PlayerBloc playerBloc;
-  Future<List<String>> getSongsFromDownloads() async {
+  Future<List<String>> getPermissions() async {
     var status = await Permission.storage.status;
     var status1 = await Permission.manageExternalStorage.status;
     var status2 = await Permission.audio.status;
@@ -65,8 +66,13 @@ class _HomePageState extends State<HomePage> {
           if (state is FetchingSongState) {
             return Center(child: Text('loading...'));
           } else if (state is FetchedSongErrorState) {
-            return Center(
-              child: Text('Error! cant find songs :('),
+            return GestureDetector(
+              onTap: (){
+                getPermissions();
+              },
+              child: Center(
+                child: Text('Error! cant find songs :('),
+              ),
             );
           } else if (state is FetchedSongState) {
             if (state.songs.isEmpty) {
@@ -84,7 +90,7 @@ class _HomePageState extends State<HomePage> {
                       child: SizedBox(
                     height: 50,
                     width: MediaQuery.of(context).size.width,
-                    child: Center(child: Text('Simple Music Player')),
+                    child: Center(child: Text('Simple Music Player',style: TextStyle(fontWeight: FontWeight.bold),)),
                   )),
                   PlayerCard(playerBloc),
                   Container(
@@ -93,9 +99,10 @@ class _HomePageState extends State<HomePage> {
                     width: MediaQuery.of(context).size.width,
                     child: Text('${state.songs.length.toString()} Songs'),
                   ),
-                  Center(
+                  Expanded(
                     child: ListView.builder(
                         shrinkWrap: true,
+                        physics: BouncingScrollPhysics(),
                         itemCount: state.songs.length,
                         itemBuilder: (ctx, i) => Container(
                                 child: SongCard(

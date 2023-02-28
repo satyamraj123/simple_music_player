@@ -1,7 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:audiotagger/audiotagger.dart';
+import 'package:dart_tags/dart_tags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
@@ -21,55 +24,76 @@ class SongCard extends StatefulWidget {
 
 class _SongCardState extends State<SongCard> {
   bool currentSong = false;
-  bool currentSongPaused = false;
-  Duration currentPosition = Duration(seconds: 0);
+  Widget coverImage = Container();
+  bool isLoadingSong = true;
+  Audiotagger tagger = Audiotagger();
+  Future<void> getSongDetails(mounted) async {
+    if (mounted) {
+      setState(() {
+        isLoadingSong = true;
+      });
+    }
+
+    var bytes = await tagger.readArtwork(path: widget.song.path);
+    if (bytes != null) {
+      coverImage = Image.memory(bytes, fit: BoxFit.cover);
+    } else {
+      coverImage = const Icon(Icons.music_note_outlined, color: Colors.white);
+    }
+    if (mounted) {
+      setState(() {
+        isLoadingSong = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    if (mounted) {
+      getSongDetails(mounted);
+      // WidgetsBinding.instance.addPostFrameCallback((_) => getSongDetails());
+    }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<PlayerBloc, PlayerBlocState>(
       listener: ((context, state) {
         if (state is PlayingState) {
-          if (state.currentSong.path.compareTo(widget.song.path) == 0) {
-            setState(() {
-              currentPosition = state.currentPosition;
-            });
-          }
+          // if (state.currentSong.path.compareTo(widget.song.path) == 0) {
+          //   setState(() {
+          //     currentPosition = state.currentPosition;
+          //   });
+          // }
         } else if (state is PausedState) {
-          setState(() {
-            currentSongPaused = true;
-          });
+          // setState(() {
+          //   currentSongPaused = true;
+          // });
         } else if (state is ChangedSongState) {
           if (state.currentSong.path.compareTo(widget.song.path) == 0) {
             setState(() {
               currentSong = true;
-              currentPosition = Duration(seconds: 0);
+              // currentPosition = Duration(seconds: 0);
             });
           } else {
             setState(() {
               currentSong = false;
-              currentPosition = Duration(seconds: 0);
+              // currentPosition = Duration(seconds: 0);
             });
           }
         }
       }),
       child: GestureDetector(
         onTap: () async {
-          if (currentSong) {
-            if (currentSongPaused) {
-              widget.playerBloc
-                  .add(ChangeSongEvent(widget.song, currentPosition));
-              setState(() {
-                currentSongPaused = false;
-              });
-            } else {
-              widget.playerBloc.add(PauseSongEvent(widget.song));
-            }
-          } else {
-            widget.playerBloc
-                .add(ChangeSongEvent(widget.song, Duration(seconds: 0)));
-            setState(() {
-              currentSongPaused = false;
-            });
-          }
+          widget.playerBloc
+              .add(ChangeSongEvent(widget.song, Duration(seconds: 0)));
         },
         child: Container(
           padding: const EdgeInsets.all(10),
@@ -84,7 +108,7 @@ class _SongCardState extends State<SongCard> {
                   height: 50,
                   width: 50,
                   color: Colors.grey,
-                  child: widget.song.coverImage),
+                  child: isLoadingSong ? widget.song.coverImage : coverImage),
               SizedBox(
                 width: 10,
               ),
@@ -117,7 +141,7 @@ class _SongCardState extends State<SongCard> {
                   ),
                 ),
               ),
-              Text(currentPosition.toString()),
+              // Text(currentPosition.toString()),
             ],
           ),
         ),

@@ -10,7 +10,7 @@ import 'package:simple_music_player/models/song_model.dart';
 
 class PlayerCard extends StatefulWidget {
   final PlayerBloc playerBloc;
-const PlayerCard(this.playerBloc, {super.key});
+  const PlayerCard(this.playerBloc, {super.key});
 
   @override
   State<PlayerCard> createState() => _PlayerCardState();
@@ -21,8 +21,9 @@ class _PlayerCardState extends State<PlayerCard> {
   Duration currentDuration = Duration(seconds: 0);
   String songName = '';
   String songArtist = '';
-  List<Song> songStack=[];
-  int currentSongPointer=-1;
+  List<Song> songStack = [];
+  int currentSongPointer = -1;
+  bool isPaused = false;
   @override
   Widget build(BuildContext context) {
     return BlocListener<PlayerBloc, PlayerBlocState>(
@@ -32,12 +33,16 @@ class _PlayerCardState extends State<PlayerCard> {
             currentDuration = state.currentPosition;
           });
         } else if (state is ChangedSongState) {
-          print('heloo###################################################');
           setState(() {
-            songName = state.currentSong.title;
+            isPaused=false;
+            // songName = state.currentSong.title;
             totalDuration = state.totalDuration;
             songStack.add(state.currentSong);
-            currentSongPointer=0;
+            currentSongPointer = 0;
+          });
+        } else if (state is PausedState) {
+          setState(() {
+            isPaused = true;
           });
         }
       },
@@ -56,9 +61,16 @@ class _PlayerCardState extends State<PlayerCard> {
                       children: [
                         IconButton(
                             onPressed: () {
-                              widget.playerBloc.add(PauseSongEvent(songStack[currentSongPointer]));
+                              if (isPaused == true) {
+                                widget.playerBloc.add(ChangeSongEvent(
+                                    songStack[currentSongPointer],
+                                    currentDuration));
+                              } else {
+                                widget.playerBloc.add(PauseSongEvent(
+                                    songStack[currentSongPointer]));
+                              }
                             },
-                            icon: Icon(Icons.play_arrow))
+                            icon: Icon(isPaused?Icons.play_arrow: Icons.pause))
                       ],
                     ),
                     totalDuration.inSeconds == 0
@@ -71,6 +83,11 @@ class _PlayerCardState extends State<PlayerCard> {
                               progressBarColor: Colors.black,
                               progress: currentDuration,
                               total: totalDuration,
+                              onSeek: (value) {
+                                 widget.playerBloc.add(ChangeSongEvent(
+                                    songStack[currentSongPointer],
+                                    value));
+                              },
                             ),
                           ),
                   ],

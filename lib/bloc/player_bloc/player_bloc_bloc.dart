@@ -19,12 +19,11 @@ class PlayerBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   void mapChangeSongEventToState(
       ChangeSongEvent event, Emitter<PlayerBlocState> emit) async {
     await audioPlayer.stop();
-
     await audioPlayer.setUrl(event.song.path);
+    audioPlayer.seek(event.playFromDuration);
     audioPlayer.play();
     Duration? totalDuration = audioPlayer.duration;
     emit(ChangedSongState(event.song, totalDuration!));
-
     await emit.forEach(audioPlayer.createPositionStream(), onData: ((data) {
       return PlayingState(event.song, data, totalDuration);
     }));
