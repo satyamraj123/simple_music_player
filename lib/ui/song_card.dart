@@ -1,14 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:audiotagger/audiotagger.dart';
-import 'package:dart_tags/dart_tags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:simple_music_player/bloc/song_bloc/song_bloc_bloc.dart';
 import 'package:simple_music_player/models/song_model.dart';
 
 import '../bloc/player_bloc/player_bloc_bloc.dart';
@@ -54,12 +48,6 @@ class _SongCardState extends State<SongCard> {
       // WidgetsBinding.instance.addPostFrameCallback((_) => getSongDetails());
     }
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
   }
 
   @override
@@ -141,7 +129,6 @@ class _SongCardState extends State<SongCard> {
                   ),
                 ),
               ),
-              // Text(currentPosition.toString()),
             ],
           ),
         ),

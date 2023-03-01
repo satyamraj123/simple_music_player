@@ -9,7 +9,7 @@ class PlayingState extends PlayerBlocState {
   final Song currentSong;
   final Duration currentPosition;
   final Duration totalDuration;
-  PlayingState(this.currentSong,this.currentPosition,this.totalDuration);
+  PlayingState(this.currentSong, this.currentPosition, this.totalDuration);
   @override
   String toString() => 'PlayingState';
 }
@@ -17,7 +17,7 @@ class PlayingState extends PlayerBlocState {
 class ChangedSongState extends PlayerBlocState {
   final Song currentSong;
   final Duration totalDuration;
-  ChangedSongState(this.currentSong,this.totalDuration);
+  ChangedSongState(this.currentSong, this.totalDuration);
   @override
   String toString() => 'ChangedSongState';
 }

@@ -9,6 +9,7 @@ part 'player_bloc_event.dart';
 part 'player_bloc_state.dart';
 
 final AudioPlayer audioPlayer = AudioPlayer();
+
 class PlayerBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
   PlayerBloc() : super(PlayerBlocInitial()) {
     on<ChangeSongEvent>(mapChangeSongEventToState, transformer: restartable());
@@ -27,7 +28,6 @@ class PlayerBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     await emit.forEach(audioPlayer.createPositionStream(), onData: ((data) {
       return PlayingState(event.song, data, totalDuration);
     }));
-    // audioPlayer.positionStream.forEach(((element) => emit(PlayingState(event.song,element))));
   }
 
   void mapPauseSongEventToState(

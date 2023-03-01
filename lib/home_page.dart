@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:simple_music_player/adjustable_controller.dart';
 import 'package:simple_music_player/bloc/player_bloc/player_bloc_bloc.dart';
 import 'package:simple_music_player/bloc/song_bloc/song_bloc_bloc.dart';
 import 'package:simple_music_player/ui/player_card.dart';
