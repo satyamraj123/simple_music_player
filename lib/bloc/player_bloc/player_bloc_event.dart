@@ -36,3 +36,10 @@ class UnPauseSongEvent extends PlayerBlocEvent {
   @override
   String toString() => 'UnPauseSongEvent';
 }
+
+class PlayFromDurationSongEvent extends PlayerBlocEvent {
+  final Duration playFromDuration;
+  const PlayFromDurationSongEvent(this.playFromDuration);
+  @override
+  String toString() => 'PlayFromDurationSongEvent';
+}

@@ -98,7 +98,7 @@ class _PlayerCardState extends State<PlayerCard> {
                               total: totalDuration,
                               onSeek: (value) {
                                 widget.playerBloc
-                                    .add(ChangeSongEvent(currentSong, value));
+                                    .add(PlayFromDurationSongEvent(value));
                               },
                             ),
                           ),

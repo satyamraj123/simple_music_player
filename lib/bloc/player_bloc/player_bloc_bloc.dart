@@ -20,6 +20,8 @@ class PlayerBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
     on<PauseSongEvent>(mapPauseSongEventToState, transformer: restartable());
     on<UnPauseSongEvent>(mapUnPauseSongEventToState,
         transformer: restartable());
+    on<PlayFromDurationSongEvent>(mapPlayFromDurationSongEventToState,
+        transformer: restartable());
   }
   final songRepository = SongRepository();
   List<Song> songStack = [];
@@ -91,6 +93,23 @@ class PlayerBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
   void mapUnPauseSongEventToState(
       UnPauseSongEvent event, Emitter<PlayerBlocState> emit) async {
+    audioPlayer.play();
+    Duration? totalDuration = audioPlayer.duration;
+    emit(ChangedSongState(
+        songStack[currentSongIndex],
+        currentSongIndex == 0 ? null : songStack[currentSongIndex - 1],
+        currentSongIndex >= songStack.length - 1
+            ? null
+            : songStack[currentSongIndex + 1],
+        totalDuration!));
+    await emit.forEach(audioPlayer.createPositionStream(), onData: ((data) {
+      return PlayingState(songStack[currentSongIndex], data, totalDuration);
+    }));
+  }
+
+  void mapPlayFromDurationSongEventToState(
+      PlayFromDurationSongEvent event, Emitter<PlayerBlocState> emit) async {
+    audioPlayer.seek(event.playFromDuration);
     audioPlayer.play();
     Duration? totalDuration = audioPlayer.duration;
     emit(ChangedSongState(
