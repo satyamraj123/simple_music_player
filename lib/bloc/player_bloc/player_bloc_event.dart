@@ -13,9 +13,26 @@ class ChangeSongEvent extends PlayerBlocEvent {
   String toString() => 'ChangeSongEvent';
 }
 
+class ChangeNextSongEvent extends PlayerBlocEvent {
+  const ChangeNextSongEvent();
+  @override
+  String toString() => 'ChangeNextSongEvent';
+}
+
+class ChangePreviousSongEvent extends PlayerBlocEvent {
+  const ChangePreviousSongEvent();
+  @override
+  String toString() => 'ChangePreviousSongEvent';
+}
+
 class PauseSongEvent extends PlayerBlocEvent {
-  final Song song;
-  const PauseSongEvent(this.song);
+  const PauseSongEvent();
   @override
   String toString() => 'PauseSongEvent';
+}
+
+class UnPauseSongEvent extends PlayerBlocEvent {
+  const UnPauseSongEvent();
+  @override
+  String toString() => 'UnPauseSongEvent';
 }

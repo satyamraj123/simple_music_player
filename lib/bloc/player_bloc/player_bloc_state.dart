@@ -16,15 +16,17 @@ class PlayingState extends PlayerBlocState {
 
 class ChangedSongState extends PlayerBlocState {
   final Song currentSong;
+  final Song? previousSong;
+  final Song? nextSong;
   final Duration totalDuration;
-  ChangedSongState(this.currentSong, this.totalDuration);
+  ChangedSongState(
+      this.currentSong, this.previousSong, this.nextSong, this.totalDuration);
   @override
   String toString() => 'ChangedSongState';
 }
 
 class PausedState extends PlayerBlocState {
-  final Song currentSong;
-  PausedState(this.currentSong);
+  PausedState();
   @override
   String toString() => 'PausedState';
 }
