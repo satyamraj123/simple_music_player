@@ -7,3 +7,8 @@ abstract class BaseProvider {
 abstract class BaseSongProvider extends BaseProvider {
   Future<List<Song>> getSongs();
 }
+
+abstract class BaseSharedPreferencesProvider extends BaseProvider {
+  Future<void> updateTopTracks(Song song);
+  Future<void> intialiseTopTracks();
+}
